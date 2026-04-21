@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nur — Islamic Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8D08A;
+    --gold-dark: #8B6914;
+    --night: #0D1117;
+    --night-2: #161C24;
+    --night-3: #1E2733;
+    --night-4: #253040;
+    --text-primary: #F0EAD8;
+    --text-secondary: #A8956E;
+    --text-muted: #6B7280;
+    --border: rgba(201,168,76,0.2);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--night); color: var(--text-primary); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: repeating-linear-gradient(60deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px), repeating-linear-gradient(-60deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px);
+    pointer-events: none; z-index: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+
+  /* SETUP */
+  #setup-screen { position: fixed; inset: 0; background: var(--night); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+  .setup-box { background: var(--night-2); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2rem; max-width: 500px; width: 100%; text-align: center; }
+  .setup-crescent { font-size: 52px; display: block; margin-bottom: 1rem; animation: float 4s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .setup-title { font-family: 'Amiri', serif; font-size: 40px; color: var(--gold); letter-spacing: 3px; margin-bottom: 0.2rem; }
+  .setup-subtitle { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; color: var(--text-secondary); margin-bottom: 0.6rem; }
+  .free-badge { display: inline-block; background: rgba(27,107,74,0.25); color: #4EC994; border: 1px solid rgba(42,153,112,0.35); font-size: 11px; font-weight: 500; letter-spacing: 1.5px; padding: 3px 14px; border-radius: 20px; margin-bottom: 1.5rem; text-transform: uppercase; }
+  .steps-list { text-align: left; background: var(--night-3); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; margin-bottom: 1.25rem; }
+  .step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 0.75rem; font-size: 13.5px; color: var(--text-primary); line-height: 1.5; }
+  .step:last-child { margin-bottom: 0; }
+  .step-num { background: var(--gold-dark); color: var(--night); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .step a { color: var(--gold); text-decoration: none; font-weight: 500; }
+  .step a:hover { text-decoration: underline; }
+  .step strong { color: var(--gold); }
+  .setup-label { font-size: 13px; color: var(--text-secondary); text-align: left; display: block; margin-bottom: 8px; }
+  .setup-input { width: 100%; background: var(--night-3); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; margin-bottom: 0.75rem; transition: border-color 0.2s; }
+  .setup-input:focus { border-color: var(--gold); }
+  .setup-input::placeholder { color: var(--text-muted); }
+  .setup-btn { width: 100%; background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: var(--night); border: none; border-radius: 10px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; margin-bottom: 0.75rem; }
+  .setup-btn:hover { opacity: 0.85; }
+  .setup-error { font-size: 13px; color: #E24B4A; margin-bottom: 0.75rem; display: none; text-align: left; }
+  .setup-note { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+
+  /* MAIN */
+  #main-site { display: none; }
+  header { padding: 2.5rem 0 1.75rem; text-align: center; border-bottom: 1px solid var(--border); }
+  .logo-symbol { font-size: 44px; margin-bottom: 0.4rem; display: block; animation: float 4s ease-in-out infinite; }
+  .site-name { font-family: 'Amiri', serif; font-size: 50px; font-weight: 700; color: var(--gold); letter-spacing: 4px; line-height: 1; text-shadow: 0 0 40px rgba(201,168,76,0.25); }
+  .site-tagline { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--text-secondary); margin-top: 0.4rem; }
+  .arabic-header { font-family: 'Amiri', serif; font-size: 19px; color: var(--gold-light); margin-top: 0.5rem; opacity: 0.6; direction: rtl; }
+  .top-bar { display: flex; align-items: center; justify-content: flex-end; padding: 0.5rem 0; }
+  .change-key-btn { font-size: 11px; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 20px; padding: 3px 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .change-key-btn:hover { color: var(--gold); border-color: var(--gold); }
+  .schedule-banner { display: flex; gap: 1px; background: var(--border); margin: 1.25rem 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .schedule-day { flex: 1; padding: 1rem 1.25rem; background: var(--night-2); text-align: center; cursor: pointer; transition: all 0.3s; }
+  .schedule-day:first-child { border-radius: 11px 0 0 11px; }
+  .schedule-day:last-child { border-radius: 0 11px 11px 0; }
+  .schedule-day.active { background: linear-gradient(135deg, var(--night-3), var(--night-4)); border-top: 2px solid var(--gold); }
+  .day-label { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--text-primary); display: block; }
+  .schedule-day.active .day-label { color: var(--gold); }
+  .day-focus { font-size: 12px; color: var(--text-muted); margin-top: 2px; display: block; }
+  .schedule-day.active .day-focus { color: var(--text-secondary); }
+  .week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.1rem; flex-wrap: wrap; gap: 0.5rem; }
+  .week-label { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--gold); }
+  .week-date { font-size: 12px; color: var(--text-muted); background: var(--night-2); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); }
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .topic-card { background: var(--night-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.25s; text-align: left; }
+  .topic-card:hover { border-color: var(--gold); background: var(--night-3); transform: translateY(-1px); }
+  .topic-card.active { border-color: var(--gold); background: linear-gradient(135deg, var(--night-3), var(--night-4)); box-shadow: 0 0 20px rgba(201,168,76,0.12); }
+  .topic-icon { font-size: 20px; margin-bottom: 6px; display: block; }
+  .topic-name { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.4; }
+  .topic-card.active .topic-name { color: var(--gold); }
+  .ask-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .ask-input { flex: 1; background: var(--night-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .ask-input:focus { border-color: var(--gold); }
+  .ask-input::placeholder { color: var(--text-muted); }
+  .ask-btn { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: var(--night); border: none; border-radius: 10px; padding: 12px 20px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; }
+  .ask-btn:hover { opacity: 0.85; }
+  .ask-btn:disabled { opacity: 0.4; cursor: default; }
+  .lesson-card { background: var(--night-2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; min-height: 300px; animation: fadeIn 0.4s ease; margin-bottom: 2rem; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .lesson-card-inner { padding: 1.75rem 2rem; }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; gap: 12px; }
+  .empty-crescent { font-size: 52px; opacity: 0.2; }
+  .empty-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: var(--text-muted); text-align: center; line-height: 1.7; }
+  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; gap: 16px; }
+  .loader-ring { width: 44px; height: 44px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-label { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; color: var(--text-secondary); }
+  .lesson-tag { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 1.25rem; }
+  .tag-quran { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .tag-prophet { background: rgba(27,107,74,0.2); color: #4EC994; border: 1px solid rgba(42,153,112,0.3); }
+  .lesson-section-title { font-size: 10px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-secondary); margin: 1.5rem 0 0.5rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+  .arabic-block { font-family: 'Amiri', serif; font-size: 28px; direction: rtl; text-align: right; line-height: 2.2; color: var(--gold-light); background: linear-gradient(135deg, var(--night-3), var(--night-4)); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 8px; padding: 1rem 1.25rem; margin: 0.75rem 0; }
+  .verse-ref { font-size: 13px; color: var(--text-muted); text-align: right; margin-bottom: 1rem; }
+  .lesson-body { font-size: 15px; color: var(--text-primary); line-height: 1.85; }
+  .lesson-body p { margin-bottom: 0.9rem; }
+  .transliteration-text { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--text-secondary); line-height: 1.8; }
+  footer { text-align: center; padding: 2rem 0; border-top: 1px solid var(--border); margin-bottom: 1rem; }
+  .footer-arabic { font-family: 'Amiri', serif; font-size: 20px; color: var(--gold); opacity: 0.5; display: block; margin-bottom: 6px; }
+  .footer-text { font-size: 12px; color: var(--text-muted); }
+  .scroll-top { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: var(--gold-dark); color: var(--night); border: none; border-radius: 50%; font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 99; }
+  @media (max-width: 600px) {
+    .site-name { font-size: 36px; }
+    .topic-grid { grid-template-columns: 1fr 1fr; }
+    .lesson-card-inner { padding: 1.25rem; }
+    .setup-box { padding: 2rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="setup-screen">
+  <div class="setup-box">
+    <span class="setup-crescent">&#x262A;</span>
+    <h1 class="setup-title">NUR</h1>
+    <p class="setup-subtitle">Weekly Islamic Learning</p>
+    <span class="free-badge">100% Free — No Credit Card</span>
+    <div class="steps-list">
+      <div class="step">
+        <span class="step-num">1</span>
+        <span>Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> and sign in with your Google account</span>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <span>Click <strong>Create API key</strong> — completely free, no card needed</span>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <span>Copy the key and paste it below, then click Begin Learning</span>
+      </div>
+    </div>
+    <label class="setup-label">Paste your free Google Gemini API Key</label>
+    <input type="password" class="setup-input" id="api-key-input" placeholder="AIzaSy..." />
+    <p class="setup-error" id="setup-error">Please paste a valid API key.</p>
+    <button class="setup-btn" onclick="saveKey()">Begin Learning &#8594;</button>
+    <p class="setup-note">Your key is saved only in your browser — never shared with anyone except Google's servers to generate your lessons.</p>
+  </div>
+</div>
+
+<div id="main-site">
+  <div class="container">
+    <header>
+      <span class="logo-symbol">&#x262A;</span>
+      <h1 class="site-name">NUR</h1>
+      <p class="site-tagline">A Weekly Light for the Seeker of Knowledge</p>
+      <p class="arabic-header">&#x0628;&#x0633;&#x0645; &#x0627;&#x0644;&#x0644;&#x0647; &#x0627;&#x0644;&#x0631;&#x062D;&#x0645;&#x0646; &#x0627;&#x0644;&#x0631;&#x062D;&#x064A;&#x0645;</p>
+    </header>
+    <div class="top-bar">
+      <button class="change-key-btn" onclick="changeKey()">&#x1F511; Change API Key</button>
+    </div>
+    <main style="padding-bottom:2rem;">
+      <div class="schedule-banner">
+        <div class="schedule-day" id="tab-sat" onclick="switchDay('saturday')">
+          <span class="day-label">Saturday</span>
+          <span class="day-focus">Quran &amp; Islamic Lessons</span>
+        </div>
+        <div class="schedule-day" id="tab-sun" onclick="switchDay('sunday')">
+          <span class="day-label">Sunday</span>
+          <span class="day-focus">Life of the Prophet &#xFDFA;</span>
+        </div>
+      </div>
+      <div class="week-header">
+        <span class="week-label" id="week-label">This Week's Lesson</span>
+        <span class="week-date" id="week-date"></span>
+      </div>
+      <div class="topic-grid" id="topic-grid"></div>
+      <div class="ask-row">
+        <input type="text" class="ask-input" id="custom-input" placeholder="Ask your own question about Islam or the Prophet &#xFDFA;..." />
+        <button class="ask-btn" id="ask-btn" onclick="askCustom()">Ask &#8599;</button>
+      </div>
+      <div class="lesson-card" id="lesson-card">
+        <div class="lesson-card-inner">
+          <div class="empty-state">
+            <span class="empty-crescent">&#x262A;</span>
+            <p class="empty-text">Choose a topic above to begin your lesson,<br>or ask your own question below.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer>
+    <div class="container">
+      <span class="footer-arabic">&#x0627;&#x0644;&#x062D;&#x0645;&#x062F; &#x0644;&#x0644;&#x0647;</span>
+      <p class="footer-text">New lessons every Saturday &amp; Sunday &mdash; Powered by Google Gemini (Free) &mdash; Nur Islamic Learning</p>
+    </div>
+  </footer>
+</div>
+
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8679;</button>
+
+<script>
+const SAT_TOPICS = [
+  { icon: "📖", name: "Random Quran verse + deep meaning", prompt: "Teach me a beautiful Quran verse. Use these exact section headers on their own line: ARABIC VERSE, REFERENCE, TRANSLITERATION, TRANSLATION, MEANING & LESSONS. Fill each section fully." },
+  { icon: "🕌", name: "A Pillar of Islam explained", prompt: "Explain one of the 5 Pillars of Islam in depth with Quranic references and practical wisdom for daily life." },
+  { icon: "✨", name: "Islamic ethics & character", prompt: "Teach me an important Islamic lesson about character, ethics, or treating others well. Reference Quranic verses and explain their meaning." },
+  { icon: "📿", name: "Names of Allah (Asma ul Husna)", prompt: "Share 3 of the 99 Beautiful Names of Allah. For each: Arabic name, meaning, Quranic reference, and how reflecting on this name transforms our lives." },
+  { icon: "🌙", name: "Jannah & the afterlife", prompt: "Teach me about Jannah (Paradise) in Islam with Quranic verses, their meanings, and actions that draw us closer to Jannah." },
+  { icon: "🤲", name: "The power of dua & gratitude", prompt: "Teach me about dua (supplication) and shukr (gratitude) in Islam. Share Quranic verses, explain their meaning, and give practical guidance." },
+];
+
+const SUN_TOPICS = [
+  { icon: "👶", name: "The Prophet's early life", prompt: "Tell me about the early life of Prophet Muhammad (peace be upon him) — birth, childhood, family, loss of parents, and his qualities before prophethood. Be detailed and moving." },
+  { icon: "🏡", name: "His daily life & noble habits", prompt: "Describe the daily life of Prophet Muhammad (peace be upon him) — morning routine, food, dress, how he treated family and companions. Paint a vivid picture." },
+  { icon: "⚔️", name: "The Battle of Badr", prompt: "Tell me the full story of the Battle of Badr — causes, armies, key events, outcome, and spiritual lessons for Muslims today." },
+  { icon: "🛡️", name: "The Battle of Uhud", prompt: "Tell me the full story of the Battle of Uhud — causes, turning point, companions' sacrifices, and the lessons the Prophet (peace be upon him) taught afterward." },
+  { icon: "🏳️", name: "The Conquest of Mecca", prompt: "Describe the conquest of Mecca (Fatah Makkah) — how it happened, the Prophet's mercy toward enemies, and why this changed history forever." },
+  { icon: "💚", name: "His mercy, kindness & leadership", prompt: "Describe the character of Prophet Muhammad (peace be upon him) — his kindness, mercy, humility, and leadership. Share specific real stories and examples." },
+];
+
+let currentDay = 'saturday', isLoading = false, apiKey = '';
+
+function getWeekSeed() {
+  const now = new Date(), start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor(Math.floor((now - start) / 86400000) / 7);
+}
+
+function getWeeklyTopics(topics) {
+  const seed = getWeekSeed(), shuffled = [...topics];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = (seed * 9301 + 49297 + i * 233) % shuffled.length;
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function formatDateRange() {
+  const now = new Date(), d = now.getDay();
+  const sat = new Date(now); sat.setDate(now.getDate() - d + 6);
+  const sun = new Date(sat); sun.setDate(sat.getDate() + 1);
+  const o = { month: 'short', day: 'numeric' };
+  return `Week of ${sat.toLocaleDateString('en-US', o)} – ${sun.toLocaleDateString('en-US', o)}`;
+}
+
+function saveKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val || val.length < 15) { document.getElementById('setup-error').style.display = 'block'; return; }
+  apiKey = val;
+  localStorage.setItem('nur_gemini_key', val);
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('main-site').style.display = 'block';
+  initSite();
+}
+
+function changeKey() {
+  localStorage.removeItem('nur_gemini_key'); apiKey = '';
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('setup-error').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+  document.getElementById('main-site').style.display = 'none';
+}
+
+function initSite() {
+  document.getElementById('week-date').textContent = formatDateRange();
+  switchDay(new Date().getDay() === 0 ? 'sunday' : 'saturday');
+}
+
+function renderTopics() {
+  const grid = document.getElementById('topic-grid');
+  const topics = getWeeklyTopics(currentDay === 'saturday' ? SAT_TOPICS : SUN_TOPICS);
+  grid.innerHTML = '';
+  topics.forEach(t => {
+    const c = document.createElement('div');
+    c.className = 'topic-card';
+    c.innerHTML = `<span class="topic-icon">${t.icon}</span><span class="topic-name">${t.name}</span>`;
+    c.onclick = () => selectTopic(c, t.prompt);
+    grid.appendChild(c);
+  });
+}
+
+function switchDay(day) {
+  currentDay = day;
+  document.getElementById('tab-sat').classList.toggle('active', day === 'saturday');
+  document.getElementById('tab-sun').classList.toggle('active', day === 'sunday');
+  document.getElementById('week-label').textContent = day === 'saturday' ? "This Week's Quran Lesson" : "This Week's Prophet's Story";
+  renderTopics(); showEmpty();
+}
+
+function showEmpty() {
+  document.getElementById('lesson-card').innerHTML = `<div class="lesson-card-inner"><div class="empty-state"><span class="empty-crescent">&#x262A;</span><p class="empty-text">Choose a topic above to begin your lesson,<br>or ask your own question below.</p></div></div>`;
+}
+
+function selectTopic(card, prompt) {
+  document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active'); fetchLesson(prompt);
+}
+
+function askCustom() {
+  const val = document.getElementById('custom-input').value.trim();
+  if (!val || isLoading) return;
+  document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+  fetchLesson(val);
+}
+
+async function fetchLesson(userPrompt) {
+  if (isLoading) return;
+  isLoading = true;
+  document.getElementById('ask-btn').disabled = true;
+  const isSun = currentDay === 'sunday';
+
+  const sys = isSun
+    ? `You are a warm Islamic scholar specializing in the Seerah of Prophet Muhammad (peace be upon him). Give detailed, historically accurate, engaging lessons about his life. Always add (peace be upon him) after his name. Use clear section headings. Write in storytelling style. For battles cover: cause, events, outcome, lessons. 350-450 words.`
+    : `You are a warm Islamic scholar teaching Quran lessons. For verses use EXACTLY these headers on their own line: ARABIC VERSE / REFERENCE / TRANSLITERATION / TRANSLATION / MEANING & LESSONS. For other questions give a thorough Islamic lesson with Quranic references. 350-450 words.`;
+
+  document.getElementById('lesson-card').innerHTML = `<div class="lesson-card-inner"><div class="loading-state"><div class="loader-ring"></div><p class="loading-label">Seeking knowledge...</p></div></div>`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: sys + "\n\nQuestion: " + userPrompt }] }],
+          generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+        })
+      }
+    );
+    const data = await res.json();
+    if (data.error) {
+      document.getElementById('lesson-card').innerHTML = `<div class="lesson-card-inner" style="text-align:center;padding:2rem;"><p style="color:#E24B4A;font-size:15px;margin-bottom:1rem;">Error: ${data.error.message}</p><button onclick="changeKey()" style="background:var(--gold-dark);color:var(--night);border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;">Update API Key</button></div>`;
+      isLoading = false; document.getElementById('ask-btn').disabled = false; return;
+    }
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+    renderLesson(text, isSun);
+  } catch(e) {
+    document.getElementById('lesson-card').innerHTML = `<div class="lesson-card-inner" style="color:#E24B4A;padding:2rem;text-align:center;"><p style="font-size:15px;">Unable to load lesson. Please check your connection and try again.</p></div>`;
+  }
+  isLoading = false; document.getElementById('ask-btn').disabled = false;
+  document.getElementById('scroll-top').style.display = 'flex';
+}
+
+function renderLesson(text, isSun) {
+  let html = `<div class="lesson-card-inner"><span class="lesson-tag ${isSun ? 'tag-prophet' : 'tag-quran'}">${isSun ? "Prophet's Life ﷺ" : 'Quran Lesson'}</span>`;
+  const lines = text.split('\n');
+  let mode = 'body', buf = [];
+
+  function flush() {
+    if (!buf.length) return;
+    const c = buf.map(l => `<p>${l}</p>`).join('');
+    html += mode === 'transliteration' ? `<div class="transliteration-text">${c}</div>` : `<div class="lesson-body">${c}</div>`;
+    buf = [];
+  }
+
+  for (let line of lines) {
+    const t = line.trim().replace(/\*\*/g, '').replace(/^#+\s*/, '');
+    if (!t) continue;
+    const up = t.toUpperCase();
+    if (up === 'ARABIC VERSE') { flush(); mode = 'arabic'; continue; }
+    if (up === 'REFERENCE') { flush(); mode = 'ref'; continue; }
+    if (up === 'TRANSLITERATION') { flush(); mode = 'transliteration'; html += `<p class="lesson-section-title">Transliteration</p>`; continue; }
+    if (up === 'TRANSLATION') { flush(); mode = 'body'; html += `<p class="lesson-section-title">Translation</p>`; continue; }
+    if (up === 'MEANING & LESSONS' || up === 'MEANING AND LESSONS') { flush(); mode = 'body'; html += `<p class="lesson-section-title">Meaning &amp; Lessons</p>`; continue; }
+    if (mode === 'arabic') { flush(); html += `<div class="arabic-block">${t}</div>`; mode = 'body'; continue; }
+    if (mode === 'ref') { html += `<p class="verse-ref">${t}</p>`; mode = 'body'; continue; }
+    buf.push(t);
+  }
+  flush();
+  html += `</div>`;
+  document.getElementById('lesson-card').innerHTML = html;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('nur_gemini_key');
+  if (saved && saved.length > 15) {
+    apiKey = saved;
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('main-site').style.display = 'block';
+    initSite();
+  }
+  document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
+  document.getElementById('custom-input').addEventListener('keydown', e => { if (e.key === 'Enter') askCustom(); });
+  window.addEventListener('scroll', () => {
+    document.getElementById('scroll-top').style.display = window.scrollY > 300 ? 'flex' : 'none';
+  });
+});
+</script>
+</body>
+</html>
